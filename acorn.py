@@ -44,10 +44,10 @@ class Acorn(object):
     It must be a callable accepting one argument, such as int or:
         lambda x: int(x, 16)
 
-    save_conv:
+    str:
     Specifies what function to use to convert the attribute into
     a string for saving into XML.  For example, if 'type' is set as above,
-    'save_conv' should be set to:
+    'str' should be set to:
         lambda x: hex(x)
 
     default:
@@ -61,20 +61,20 @@ class Acorn(object):
     be raised on creating an element from XML if the XML attribute has an
     illegal value (legality is checked after converting with 'type').
 
-    subels:
+    children:
     A special type that defines a list of child objects that should be loaded
-    from the XML element.  Every attribute with the 'subels' type should have
+    from the XML element.  Every attribute with the 'children' type should have
     'cls' in the meta-deta specifying the class of the children.  That class
-    must also inherit from StorableContent.
+    must also inherit from Acorn.
 
-    subel:
-    Similar to 'subels' but, instead of defining a list of child objects,
-    defines just a single child object.  A 'subel' may have an 'optional',
+    child:
+    Similar to 'children' but, instead of defining a list of child objects,
+    defines just a single child object.  A 'child' may have an 'optional',
     specifying whether it is required or not.   If not set it is assumed to
-    be False.  NOTE: optional is only valid for subel type.
+    be False.  NOTE: optional is only valid for child type.
 
     cls:
-    See 'subels'.
+    See 'children'.
 
     For more, see the example at the bottom of this file.
     """
@@ -91,8 +91,8 @@ class Acorn(object):
         """
         It is optional to call Acorn.__init__.  If you do, it will
         create all attributes with default values (and set them to the
-        defaults) and create any attributes of 'subels' type and set them to
-        empty lists.  It will create any attributes of 'subel' type.
+        defaults) and create any attributes of 'children' type and set them to
+        empty lists.  It will create any attributes of 'child' type.
 
         It will also set any attributes to any values specified in kwargs.
         These values override the defaults.  For any attributes with
