@@ -110,6 +110,48 @@ class Acorn(object):
                 setattr(self, aname, value)
 
     # - - - - - - - - - - - - - - -
+    # Handle sources
+    # - - - - - - - - - - - - - - -
+
+    __sources__ = {
+        'text':       AcornTextMeta,
+        'attr':       AcornAttrMeta,
+        'child.text': AcornSubTextMeta,
+        'child':      AcornChildMeta,
+        'children':   AcornChildrenMeta
+    }
+
+    @classmethod
+    def register_src(cls, src_name, src):
+        cls.__sources__[src_name] = src
+
+    @classmethod
+    def unregister_src(cls, src_name):
+        if src_name in cls.__sources__:
+            del cls.__sources__[src_name]
+
+    @classmethod
+    def parse_content(cls, content):
+        parsed = {}
+
+        for name, meta in content.items():
+            # Create source to handle meta.
+            try:
+                src_cons = cls.__sources__[meta['src']]
+            except KeyError:
+                raise AcornException((
+                    "No source named \"{}\" is registered "
+                    "with {}").format(meta['src'], cls)
+                )
+
+            del meta['src']  # remove src field, meta needn't know about it
+            src = src_cons(**meta)
+
+            parsed[name] = src
+
+        return parsed
+
+    # - - - - - - - - - - - - - - -
     # Code for loading from XML.
     # - - - - - - - - - - - - - - -
 
@@ -174,24 +216,38 @@ class Acorn(object):
 if __name__ == '__main__':
     class NestedObject(Acorn):
         xml_tag = 'nested_object'
-        acorn_content = {
-            'name': AcornAttrMeta(type=str),
-        }
+        acorn_content = Acorn.parse_content({
+            'name': {'type': str, 'src': 'attr'},
+        })
 
     class Child(Acorn):
         xml_tag = 'child'
-        acorn_content = {
-            'name': AcornAttrMeta(type=str),
-        }
+        acorn_content = Acorn.parse_content({
+            'name': {'type': str, 'src': 'attr'}
+        })
 
     class Item(Acorn):
         xml_tag = 'item'
-        acorn_content = {
-            'name':          AcornAttrMeta(type=str),
-            'description':   AcornSubTextMeta(type=str),
-            'nested_object': AcornChildMeta(type=str, cls=NestedObject),
-            'children':      AcornChildrenMeta(type=str, cls=Child),
-        }
+        acorn_content = Acorn.parse_content({
+            'name': {
+                'type': str,
+                'src': 'attr'
+            },
+            'description': {
+                'type': str,
+                'src': 'child.text'
+            },
+            'nested_object': {
+                'type': str,
+                'cls': NestedObject,
+                'src': 'child'
+            },
+            'children': {
+                'type': str,
+                'cls': Child,
+                'src': 'children'
+            },
+        })
 
         def __init__(self, **kw):
             super(Item, self).__init__(**kw)
