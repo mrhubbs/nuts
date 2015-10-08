@@ -17,19 +17,19 @@ __all__ = ('AcornException',
 
 class Acorn(object):
     """
-    content_tag = 'example_acorn'
+    xml_tag = 'example_acorn'
 
-    content_defs = {
+    acorn_content = {
         'name':        AcornAttrMeta(type=str),
         'description': AcornTextMeta(type=str)
     }
 
-    content_tag should be a string.  It is XML tag which corresponds to
+    xml_tag should be a string.  It is XML tag which corresponds to
     the object type.
 
-    content_defs should be defined with the following form:
+    acorn_content should be defined with the following form:
 
-    content_defs = {
+    acorn_content = {
         'attrib_name': {'type': TYPE, 'default': DEFAULT_VALUE},
     }
 
@@ -79,9 +79,9 @@ class Acorn(object):
     For more, see the example at the bottom of this file.
     """
 
-    content_tag = 'acorn'
+    xml_tag = 'acorn'
 
-    content_defs = {}
+    acorn_content = {}
 
     # - - - - - - - - - - -
     # Initialization code
@@ -101,12 +101,12 @@ class Acorn(object):
         """
 
         # Create all defaults.
-        for aname, meta in self.content_defs.items():
+        for aname, meta in self.acorn_content.items():
             meta.create_default(aname, self)
 
         # Apply any attribute values specified in kwargs.
         for aname, value in kwargs.items():
-            if aname in self.content_defs:
+            if aname in self.acorn_content:
                 setattr(self, aname, value)
 
     # - - - - - - - - - - - - - - -
@@ -125,7 +125,7 @@ class Acorn(object):
         obj = cls()
 
         # load all the attributes and sub-objects
-        for aname, meta in cls.content_defs.items():
+        for aname, meta in cls.acorn_content.items():
             meta.fromxml(aname, obj, xml_el)
 
         return obj
@@ -155,12 +155,12 @@ class Acorn(object):
         XML element.
         """
         # Create the element
-        el = etree.Element(self.content_tag)
+        el = etree.Element(self.xml_tag)
         if xml_dest is not None:
             xml_dest.append(el)
 
         # Apply the attributes
-        for aname, meta in self.content_defs.items():
+        for aname, meta in self.acorn_content.items():
             meta.toxml(aname, self, el)
 
         return el
@@ -173,20 +173,20 @@ class Acorn(object):
 # Example
 if __name__ == '__main__':
     class NestedObject(Acorn):
-        content_tag = 'nested_object'
-        content_defs = {
+        xml_tag = 'nested_object'
+        acorn_content = {
             'name': AcornAttrMeta(type=str),
         }
 
     class Child(Acorn):
-        content_tag = 'child'
-        content_defs = {
+        xml_tag = 'child'
+        acorn_content = {
             'name': AcornAttrMeta(type=str),
         }
 
     class Item(Acorn):
-        content_tag = 'item'
-        content_defs = {
+        xml_tag = 'item'
+        acorn_content = {
             'name':          AcornAttrMeta(type=str),
             'description':   AcornSubTextMeta(type=str),
             'nested_object': AcornChildMeta(type=str, cls=NestedObject),

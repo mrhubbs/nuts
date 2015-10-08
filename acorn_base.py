@@ -122,7 +122,7 @@ class AcornChildMeta(BaseAcornMeta):
 
     def fromxml(self, name, obj, xml_el):
         child_cls = self.meta['cls']
-        child_tag = child_cls.content_tag
+        child_tag = child_cls.xml_tag
 
         child_el = xml_el.find(child_tag)
 
@@ -133,7 +133,7 @@ class AcornChildMeta(BaseAcornMeta):
             # We don't have the child and it's not optional, complain.
             raise AcornException((
                 "Object of tag \"{}\" should specify child of tag "
-                "\"{}\"".format(self.content_tag, child_cls.content_tag)))
+                "\"{}\"".format(self.xml_tag, child_cls.xml_tag)))
 
     def toxml(self, name, obj, xml_el):
         try:
@@ -155,7 +155,7 @@ class AcornChildrenMeta(BaseAcornMeta):
 
     def fromxml(self, name, obj, xml_el):
         child_cls = self.meta['cls']
-        child_tag = child_cls.content_tag
+        child_tag = child_cls.xml_tag
 
         children_objs = []
         setattr(obj, name, children_objs)
