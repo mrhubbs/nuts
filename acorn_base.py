@@ -118,10 +118,10 @@ class AcornChildMeta(BaseAcornMeta):
 
     def create_default(self, name, obj):
         if self.meta.get('default') is not None:
-            setattr(obj, name, self.meta['cls']())
+            setattr(obj, name, self.meta['type']())
 
     def fromxml(self, name, obj, xml_el):
-        child_cls = self.meta['cls']
+        child_cls = self.meta['type']
         child_tag = child_cls.xml_tag
 
         child_el = xml_el.find(child_tag)
@@ -154,7 +154,7 @@ class AcornChildrenMeta(BaseAcornMeta):
         setattr(obj, name, [])
 
     def fromxml(self, name, obj, xml_el):
-        child_cls = self.meta['cls']
+        child_cls = self.meta['type']
         child_tag = child_cls.xml_tag
 
         children_objs = []

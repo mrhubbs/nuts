@@ -40,8 +40,9 @@ class Acorn(object):
     the attribute.
 
     type:
-    Specifies what type to convert the string XML attribute to.
-    It must be a callable accepting one argument, such as int or:
+    For simple data, this is generally a string-to-whatever conversion
+    function.  In this cas, it must be a callable, accepting one argument,
+    such as int or:
         lambda x: int(x, 16)
 
     str:
@@ -49,6 +50,10 @@ class Acorn(object):
     a string for saving into XML.  For example, if 'type' is set as above,
     'str' should be set to:
         lambda x: hex(x)
+
+    src:
+    Specifies where in the XML to get/put the data, as well as what parser
+    to use.  This defaults to 'attr' if not specified.
 
     default:
     Contains a default value to use in case the XML element does
@@ -63,18 +68,13 @@ class Acorn(object):
 
     children:
     A special type that defines a list of child objects that should be loaded
-    from the XML element.  Every attribute with the 'children' type should have
-    'cls' in the meta-deta specifying the class of the children.  That class
-    must also inherit from Acorn.
+    from the XML element.
 
     child:
     Similar to 'children' but, instead of defining a list of child objects,
     defines just a single child object.  A 'child' may have an 'optional',
     specifying whether it is required or not.   If not set it is assumed to
     be False.  NOTE: optional is only valid for child type.
-
-    cls:
-    See 'children'.
 
     For more, see the example at the bottom of this file.
     """
@@ -135,16 +135,16 @@ class Acorn(object):
         parsed = {}
 
         for name, meta in content.items():
+            src_name = meta.get('src', 'attr')
             # Create source to handle meta.
             try:
-                src_cons = cls.__sources__[meta['src']]
+                src_cons = cls.__sources__[src_name]
             except KeyError:
                 raise AcornException((
                     "No source named \"{}\" is registered "
-                    "with {}").format(meta['src'], cls)
+                    "with {}").format(src_name, cls)
                 )
 
-            del meta['src']  # remove src field, meta needn't know about it
             src = src_cons(**meta)
 
             parsed[name] = src
@@ -238,13 +238,11 @@ if __name__ == '__main__':
                 'src': 'child.text'
             },
             'nested_object': {
-                'type': str,
-                'cls': NestedObject,
+                'type': NestedObject,
                 'src': 'child'
             },
             'children': {
-                'type': str,
-                'cls': Child,
+                'type': Child,
                 'src': 'children'
             },
         })
@@ -256,18 +254,16 @@ if __name__ == '__main__':
             return self.name + ' (' + self.description + ')'
 
     xml_text = """
-<root>
-    <item name='the little example'>
-        <description>I am just an example, nothing special.</description>
-        <nested_object name='a full-fledged sub-object'/>
-        <child name='roger'/>
-        <child name='fred'/>
-        <child name='babies'/>
-    </item>
-</root>
+<item name='the little example'>
+    <description>I am just an example, nothing special.</description>
+    <nested_object name='a full-fledged sub-object'/>
+    <child name='roger'/>
+    <child name='fred'/>
+    <child name='babies'/>
+</item>
     """
     root = etree.fromstring(xml_text)
-    ea = Item.fromxml(list(root)[0])
+    ea = Item.fromxml(root)
 
     print('# from XML #')
     print(xml_text)
@@ -281,8 +277,7 @@ if __name__ == '__main__':
                   Child(name='1'),
                   Child(name='2')])
     print(str(ea))
-    root = etree.Element('root')
-    ea.toxml(root)
-    print('This resulted in:')
+    root = ea.toxml()
+    print('\nThis resulted in:')
     print(etree.tostring(root, pretty_print=True))
 
