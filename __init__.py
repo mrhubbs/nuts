@@ -1,5 +1,10 @@
 
 
+__version__ = '0.1'
+
+__all__ = ('NutsException', )
+
+
 class NutException(Exception):
     pass
 
