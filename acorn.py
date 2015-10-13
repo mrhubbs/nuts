@@ -15,6 +15,16 @@ __all__ = ('AcornException',
            'Acorn')
 
 
+class _AcornMetaClass(type):
+    def __init__(cls, *ar):
+        super(_AcornMetaClass, cls).__init__(*ar)
+        # We want this to be a different object for every sub-class of Acorn.
+        cls.__hooks__ = {
+            'fromxml': [],
+            'toxml':   [],
+        }
+
+
 class Acorn(object):
     """
     xml_tag = 'example_acorn'
@@ -83,6 +93,8 @@ class Acorn(object):
 
     acorn_content = {}
 
+    __metaclass__ = _AcornMetaClass
+
     # - - - - - - - - - - -
     # Initialization code
     # - - - - - - - - - - -
@@ -130,6 +142,27 @@ class Acorn(object):
         if src_name in cls.__sources__:
             del cls.__sources__[src_name]
 
+    # - - - - - - - - - - - - - - -
+    # Handle hooks
+    # - - - - - - - - - - - - - - -
+
+    @classmethod
+    def add_hook(cls, event, hook):
+        hlist = cls.__hooks__[event]
+
+        # Make sure not to add twice.
+        if hook not in hlist:
+            hlist.append(hook)
+
+    @classmethod
+    def remove_hook(cls, event, hook):
+        if event in cls.__hooks__:
+            try:
+                cls.__hooks__[event].remove(hook)
+            except ValueError:
+                # The given hook wasn't in the given event, but just ignore.
+                pass
+
     @classmethod
     def parse_content(cls, content):
         parsed = {}
@@ -170,6 +203,8 @@ class Acorn(object):
         for aname, meta in cls.acorn_content.items():
             meta.fromxml(aname, obj, xml_el)
 
+        cls._apply_hooks('fromxml', obj)
+
         return obj
 
     # - - - - - - - - - - - - -
@@ -186,10 +221,15 @@ class Acorn(object):
             el = self._toxml()
             tree = etree.ElementTree(el)
             tree.write(xml_dest, **write_kwargs)
+
+            self._apply_hooks('toxml', el)
+
             return el
         else:
             # No path, just proceed as usual.
-            return self._toxml(xml_dest)
+            el = self._toxml(xml_dest)
+            self._apply_hooks('toxml', el)
+            return el
 
     def _toxml(self, xml_dest=None):
         """
@@ -206,10 +246,6 @@ class Acorn(object):
             meta.toxml(aname, self, el)
 
         return el
-
-    # - - - - - - - - - - -
-    # Common helper methods
-    # - - - - - - - - - - -
 
 
 # Example
@@ -280,4 +316,3 @@ if __name__ == '__main__':
     root = ea.toxml()
     print('\nThis resulted in:')
     print(etree.tostring(root, pretty_print=True))
-
