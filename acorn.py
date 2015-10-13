@@ -183,7 +183,7 @@ class Acorn(object):
                     "with {}").format(src_name, cls)
                 )
 
-            src = src_cons(**meta)
+            src = src_cons(meta)
 
             parsed[name] = src
 

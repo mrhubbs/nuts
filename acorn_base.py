@@ -7,8 +7,8 @@ class AcornException(NutException):
 
 
 class BaseAcornMeta(object):
-    def __init__(self, **kw):
-        self.meta = kw
+    def __init__(self, meta):
+        self.meta = meta
 
     def create_default(self, name, obj):
         if self.meta.get('default') is not None:
