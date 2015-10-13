@@ -89,7 +89,7 @@ class Acorn(object):
     For more, see the example at the bottom of this file.
     """
 
-    xml_tag = 'acorn'
+    xml_tag = None
 
     acorn_content = {}
 
@@ -162,6 +162,11 @@ class Acorn(object):
             except ValueError:
                 # The given hook wasn't in the given event, but just ignore.
                 pass
+
+    @classmethod
+    def _apply_hooks(cls, event, obj):
+        for h in cls.__hooks__[event]:
+            h(event, cls, obj)
 
     @classmethod
     def parse_content(cls, content):
