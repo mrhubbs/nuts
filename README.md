@@ -9,9 +9,9 @@ Acorn is a flexible, concise, powerful mix-in class for serializing/deserializin
 __Contents__
 
  * [simple example](#the_example)
- * [sources](#sources)
+ * [sources](#sources) - customizable, how Acorn processes the data from XML
  * [writing your own source](#writing_source)
- * [hooks](#hooks)
+ * [hooks](#hooks) - further customizability
 
 <a name="the_example"></a>
 ### simple example
@@ -159,7 +159,7 @@ print(person.weapon)
 
 #### children
 
-Load a series of objects from the children.
+Load a series of objects from the direct children (children's children are ignored).
 
 ```xml
 <person>
@@ -192,7 +192,64 @@ TODO: write about recursion trick for children/child
 <a name="writing_source"></a>
 ### writing your own source
 
-TODO: write about this...
+You can write your own sources.  Below is a simplified example that behaves like the 'attr' (__AcornAttrMeta__) source.
+
+```python
+from nuts.acorn import Acorn
+from nuts.acorn_base import BaseAcornMeta
+
+class AcornSimpleAttrMeta(BaseAcornMeta):
+    def fromxml(self, name, obj, xml_el):
+        # simple example, doesn't perform error checking
+        type_conv = self.meta['type']
+        val = type_conv(xml_el.attrib[name])
+        setattr(obj, name, val)
+
+    def toxml(self, name, obj, xml_el):
+        # be sure to convert to string...
+        xml_el.attrib[name] = str(getattr(obj, name))
+
+Acorn.register_src('simple-attr', AcornSimpleAttrMeta)
+
+class Person(Acorn):
+    xml_tag = 'person'
+    acorn_content = Acorn.parse_content({
+        'name': {'type': str, 'src': 'simple-attr'}
+    })
+
+# now AcornSimpleAttrMeta will be used to parse Person's name attribute
+```
+
+The dictionary associated with 'name' is available within the fromxml and toxml methods as 'self.meta'. 
+
+The arguments to fromxml and toxml:
+
+ * __name__ - the attribute name
+ * __obj__  - the instance of the Python object being loaded or saved
+ * __xml_el__ - the etree Element instance the Python object is being loaded from or saved to
+ 
+__BaseAcornMeta__ has a method for creating default values.  You can override it, if you want to:
+
+```python
+class AcornSimpleAttrMeta(BaseAcornMeta):
+    ...
+    def create_default(self, name, obj):
+        setattr(obj, name, 'default value')
+    ...
+```
+
+You can also override the **\_\_init\_\_** method, like so:
+
+```python
+class AcornSimpleAttrMeta(BaseAcornMeta):
+    def __init__(self, *args):
+        super(AcornSimpleAttrMeta, self).__init__(*args)
+        
+        # whatever code you want...
+    ...
+```
+
+__NOTE:__ If your source is a bit more advanced, instead of using **BaseAcornMeta**, consider extending one of the other **Acorn\*Meta** classes in [acorn_base.py](acorn_base.py).
 
 <a name="hooks"></a>
 ### hooks
@@ -239,7 +296,7 @@ Hooks may be removed with:
 Acorn.remove_hook(event, hook)
 ```
 
-*Note*: hooks are not inherited.  If you do:
+**Note:** hooks are not inherited.  If you do:
 
 ```python
 Acorn.add_hook('fromxml', lambda *ar: 0)
