@@ -159,46 +159,16 @@ print(person.weapon)
 
 #### children
 
-Load a series of objects from the direct children (children's children are ignored).
-
-```xml
-<person>
-    <weapon type='sword'/>
-    <weapon type='bow'/>
-    <weapon type='dirk'/>
-</person>
-```
-```python
-class Weapon(Acorn):
-    ...
-
-class Person(Acorn):
-    xml_tag = 'person'
-    acorn_content = Acorn.parse_content({
-        . . .
-        'weapons':      {'type': Weapon, 'src': 'children'}
-    })
-
-person = Person.fromxml(...)
-print(person.weapons)
-
-[<Weapon object at 0x7fab52......>,
- <Weapon object at 0x7fab52......>,
- <Weapon object at 0x7fab52......>]
-```
-
-TODO: write about recursion trick for children/child
-
 <a name="writing_source"></a>
 ### writing your own source
 
-You can write your own sources.  Below is a simplified example that behaves like the 'attr' (__AcornAttrMeta__) source.
+You can write your own sources.  Below is a simplified example that behaves like the 'attr' (__AcornAttrSource__) source.
 
 ```python
 from nuts.acorn import Acorn
-from nuts.acorn_base import BaseAcornMeta
+from nuts.acorn_base import BaseAcornSource
 
-class AcornSimpleAttrMeta(BaseAcornMeta):
+class AcornSimpleAttrSource(BaseAcornSource):
     def fromxml(self, name, obj, xml_el):
         # simple example, doesn't perform error checking
         type_conv = self.meta['type']
@@ -209,7 +179,7 @@ class AcornSimpleAttrMeta(BaseAcornMeta):
         # be sure to convert to string...
         xml_el.attrib[name] = str(getattr(obj, name))
 
-Acorn.register_src('simple-attr', AcornSimpleAttrMeta)
+Acorn.register_src('simple-attr', AcornSimpleAttrSource)
 
 class Person(Acorn):
     xml_tag = 'person'
@@ -217,7 +187,7 @@ class Person(Acorn):
         'name': {'type': str, 'src': 'simple-attr'}
     })
 
-# now AcornSimpleAttrMeta will be used to parse Person's name attribute
+# now AcornSimpleAttrSource will be used to parse Person's name attribute
 ```
 
 The dictionary associated with 'name' is available within the fromxml and toxml methods as 'self.meta'. 
@@ -228,10 +198,10 @@ The arguments to fromxml and toxml:
  * __obj__  - the instance of the Python object being loaded or saved
  * __xml_el__ - the etree Element instance the Python object is being loaded from or saved to
  
-__BaseAcornMeta__ has a method for creating default values.  You can override it, if you want to:
+__BaseAcornSource__ has a method for creating default values.  You can override it, if you want to:
 
 ```python
-class AcornSimpleAttrMeta(BaseAcornMeta):
+class AcornSimpleAttrSource(BaseAcornSource):
     ...
     def create_default(self, name, obj):
         setattr(obj, name, 'default value')
@@ -241,15 +211,15 @@ class AcornSimpleAttrMeta(BaseAcornMeta):
 You can also override the **\_\_init\_\_** method, like so:
 
 ```python
-class AcornSimpleAttrMeta(BaseAcornMeta):
+class AcornSimpleAttrSource(BaseAcornSource):
     def __init__(self, *args):
-        super(AcornSimpleAttrMeta, self).__init__(*args)
+        super(AcornSimpleAttrSource, self).__init__(*args)
         
         # whatever code you want...
     ...
 ```
 
-__NOTE:__ If your source is a bit more advanced, instead of using **BaseAcornMeta**, consider extending one of the other **Acorn\*Meta** classes in [acorn_base.py](acorn_base.py).
+__NOTE:__ If your source is a bit more advanced, instead of using **BaseAcornSource**, consider extending one of the other **Acorn\*Source** classes in [acorn_base.py](acorn_base.py).
 
 <a name="hooks"></a>
 ### hooks

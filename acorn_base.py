@@ -1,12 +1,16 @@
 
-from . import etree, NutException
+from __init__ import etree, NutException
 
 
 class AcornException(NutException):
     pass
 
 
-class BaseAcornMeta(object):
+class BaseAcornSource(object):
+    """
+    The base class for every source.
+    """
+
     def __init__(self, meta):
         self.meta = meta
 
@@ -21,7 +25,11 @@ class BaseAcornMeta(object):
         raise AcornException("Must implement in inheriting class")
 
 
-class AcornTextMeta(BaseAcornMeta):
+class AcornTextSource(BaseAcornSource):
+    """
+    Source to get data from element's text.
+    """
+
     type = 'text'
 
     @staticmethod
@@ -86,7 +94,11 @@ class AcornTextMeta(BaseAcornMeta):
         return conv(val)
 
 
-class AcornAttrMeta(AcornTextMeta):
+class AcornAttrSource(AcornTextSource):
+    """
+    Source to get data from element's attribute.
+    """
+
     type = 'attrib'
 
     @staticmethod
@@ -97,7 +109,11 @@ class AcornAttrMeta(AcornTextMeta):
         xml_el.attrib[name] = self._process_val_txml(getattr(obj, name))
 
 
-class AcornSubTextMeta(AcornTextMeta):
+class AcornSubTextSource(AcornTextSource):
+    """
+    Source to get data from element's child's text.
+    """
+
     type = 'child'
 
     def _get_text(self, name, xml_el):
@@ -114,7 +130,10 @@ class AcornSubTextMeta(AcornTextMeta):
         child.text = self._process_val_txml(getattr(obj, name))
 
 
-class AcornChildMeta(BaseAcornMeta):
+class AcornChildSource(BaseAcornSource):
+    """
+    Source to load object from element's child.
+    """
 
     def create_default(self, name, obj):
         if self.meta.get('default') is not None:
@@ -149,7 +168,40 @@ class AcornChildMeta(BaseAcornMeta):
             child.toxml(xml_el)
 
 
-class AcornChildrenMeta(BaseAcornMeta):
+class AcornChildrenSource(BaseAcornSource):
+    """
+    Load a series of objects from the direct children (children's children
+    are ignored).
+
+    .. code-block:: XML
+        <person>
+            <weapon type='sword'/>
+            <weapon type='bow'/>
+            <weapon type='dirk'/>
+        </person>
+
+    .. code-block:: python
+
+        class Weapon(Acorn):
+            ...
+
+        class Person(Acorn):
+            xml_tag = 'person'
+            acorn_content = Acorn.parse_content({
+                . . .
+                'weapons': {'type': Weapon, 'src': 'children'}
+            })
+
+        person = Person.fromxml(...)
+        print(person.weapons)
+
+        [<Weapon object at 0x7fab52......>,
+         <Weapon object at 0x7fab52......>,
+         <Weapon object at 0x7fab52......>]
+
+    TODO: write about recursion trick for children/child
+    """
+
     def create_default(self, name, obj):
         setattr(obj, name, [])
 

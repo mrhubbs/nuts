@@ -27,71 +27,33 @@ class _AcornMetaClass(type):
 
 class Acorn(object):
     """
-    xml_tag = 'example_acorn'
-
-    acorn_content = {
-        'name':        AcornAttrMeta(type=str),
-        'description': AcornTextMeta(type=str)
-    }
-
-    xml_tag should be a string.  It is XML tag which corresponds to
-    the object type.
-
-    acorn_content should be defined with the following form:
-
-    acorn_content = {
-        'attrib_name': {'type': TYPE, 'default': DEFAULT_VALUE},
-    }
-
-    The key of each entry in the content def dict is a string name,
-    corresponding to the name of the XML attribute.
-
-    The value of each entry is a dictionary containing meta-data about
-    the attribute.
-
-    type:
-    For simple data, this is generally a string-to-whatever conversion
-    function.  In this cas, it must be a callable, accepting one argument,
-    such as int or:
-        lambda x: int(x, 16)
-
-    str:
-    Specifies what function to use to convert the attribute into
-    a string for saving into XML.  For example, if 'type' is set as above,
-    'str' should be set to:
-        lambda x: hex(x)
-
-    src:
-    Specifies where in the XML to get/put the data, as well as what parser
-    to use.  This defaults to 'attr' if not specified.
-
-    default:
-    Contains a default value to use in case the XML element does
-    not have the attribute.  The default value is not converted using
-    the type parameter and so, for example, if type is 'float' then 'default'
-    should be 0.0 and not '0.0'.
-
-    options:
-    Contains permissible values for the attribute.  An exception will
-    be raised on creating an element from XML if the XML attribute has an
-    illegal value (legality is checked after converting with 'type').
-
-    children:
-    A special type that defines a list of child objects that should be loaded
-    from the XML element.
-
-    child:
-    Similar to 'children' but, instead of defining a list of child objects,
-    defines just a single child object.  A 'child' may have an 'optional',
-    specifying whether it is required or not.   If not set it is assumed to
-    be False.  NOTE: optional is only valid for child type.
-
-    For more, see the example at the bottom of this file.
+    This defines some very flexible functionality to create Python classes from
+    XML and create XML from Python classes.
     """
 
     xml_tag = None
+    '''
+    XML tag associated with this class. For example, if you created a class
+    called 'Person' to parse <person/> elements from XML, you would set xml_tag
+    to 'person'.
+    '''
 
     acorn_content = {}
+    '''
+    This dictionary defines what class attributes Acorn will load from/save \
+    to XML.
+
+    acorn_content should be defined in the following way:
+
+    .. code-block:: python
+
+        class Example(Acorn):
+            acorn_content = Acorn.parse_content({
+                'attrib_name': {'type': str, ...},
+                'other_attrib_name': ...,
+                ...
+            })
+    '''
 
     __metaclass__ = _AcornMetaClass
 
@@ -101,10 +63,11 @@ class Acorn(object):
 
     def __init__(self, **kwargs):
         """
-        It is optional to call Acorn.__init__.  If you do, it will
-        create all attributes with default values (and set them to the
-        defaults) and create any attributes of 'children' type and set them to
-        empty lists.  It will create any attributes of 'child' type.
+        It is optional to call this when instantiating inherting classes.
+        If called, it will create all attributes with default values (and set
+        them to the defaults) and create any attributes of 'children' type 
+        and set them to empty lists.  It will create any attributes of 'child'
+        type.
 
         It will also set any attributes to any values specified in kwargs.
         These values override the defaults.  For any attributes with
@@ -126,19 +89,50 @@ class Acorn(object):
     # - - - - - - - - - - - - - - -
 
     __sources__ = {
-        'text':       AcornTextMeta,
-        'attr':       AcornAttrMeta,
-        'child.text': AcornSubTextMeta,
-        'child':      AcornChildMeta,
-        'children':   AcornChildrenMeta
+        'text':       AcornTextSource,
+        'attr':       AcornAttrSource,
+        'child.text': AcornSubTextSource,
+        'child':      AcornChildSource,
+        'children':   AcornChildrenSource
     }
 
     @classmethod
     def register_src(cls, src_name, src):
+        """
+        Registers the source **src** under the name **src_name**.
+
+        **src_name**
+            :class:`str`, name of source
+
+        **src**
+            Must inherit from :class:`~acorn_base.BaseAcornSource`.
+
+        .. note::
+            If there is already a source by **src_name**, it will be replaced \
+            by **src**.
+
+        .. note::
+            This acts 'globally'. That is, the source will be registered to
+            :class:`~acorn.Acorn` and all classes that inherit from it.
+        """
         cls.__sources__[src_name] = src
 
     @classmethod
     def unregister_src(cls, src_name):
+        """
+        Unregisters the source associted with the name **src_name**.
+
+        **src_name**
+            :class:`str`, name of source
+
+        .. note::
+            This fails gracefully (without exceptions) in the event there is \
+            no such source.
+
+        .. note::
+            This acts 'globally'. That is, the source will be unregistered from
+            :class:`~acorn.Acorn` and all classes that inherit from it.
+        """
         if src_name in cls.__sources__:
             del cls.__sources__[src_name]
 
@@ -148,6 +142,45 @@ class Acorn(object):
 
     @classmethod
     def add_hook(cls, event, hook):
+        """
+        Add **hook** to the event named **event**.
+
+        **event**
+            :class:`str`, name of event. Current options are 'fromxml' \
+                and 'toxml'.
+
+        **hook**
+            A callable of the form:
+
+            .. code-block:: python
+
+                def hook(event, event_cls, obj):
+                    ...
+
+        - *event* - name of event
+
+        - *event_cls* - the class of the object generating the event. If the \
+            hook call resulted from doing:
+
+            .. code-block:: python
+
+                Acorn.fromxml(...)
+
+            then *event_cls* would be :class:`~acorn.Acorn`.
+
+        - *obj* - the object associated with the hook. For 'fromxml', this \
+            is the Python object being created. For 'toxml', this is the 
+            :class:`xml.etree.ElementTree.Element` being created.
+
+        .. note::
+            If this hook is already assigned to **event**, it will not be \
+            added again.
+
+        .. note::
+            Unlike :func:`~acorn.Acorn.register_src`, this acts 'locally'.
+            That is, it only acts on the class it is called with, not all
+            classes inheriting from :class:`~acorn.Acorn`.
+        """
         hlist = cls.__hooks__[event]
 
         # Make sure not to add twice.
@@ -156,6 +189,25 @@ class Acorn(object):
 
     @classmethod
     def remove_hook(cls, event, hook):
+        """
+        Remove **hook** from the event named **event**.
+
+        **event**
+            :class:`str`, name of event. Current options are 'fromxml' \
+                and 'toxml'.
+
+        **hook**
+            The hook callable.
+
+        .. note::
+            This fails gracefully (without exceptions) in the event there is \
+            no such hook.
+
+        .. note::
+            Unlike :func:`~acorn.Acorn.register_src`, this acts 'locally'.
+            That is, it only acts on the class it is called with, not all
+            classes inheriting from :class:`~acorn.Acorn`.
+        """
         if event in cls.__hooks__:
             try:
                 cls.__hooks__[event].remove(hook)
@@ -170,6 +222,11 @@ class Acorn(object):
 
     @classmethod
     def parse_content(cls, content):
+        """
+        Processes the content dict into a more usable form for Acorn's
+        internal code.  This should be used to define
+        :attr:`~acorn.Acorn.acorn_content` unless you know what you are doing.
+        """
         parsed = {}
 
         for name, meta in content.items():
@@ -194,19 +251,25 @@ class Acorn(object):
     # - - - - - - - - - - - - - - -
 
     @classmethod
-    def fromxml(cls, xml_el):
+    def fromxml(cls, xml_src):
         """
-        Create and return a new object loaded from the XML element or path.
+        Create and return a new object loaded from **xml_src**.
+
+        **xml_src**
+            Either :class:`xml.etree.ElementTree.Element` or a path of type
+            :class:`str`. If the first, the object will be loaded from the
+            element. If the second, the XML file at the path **xml_src** will
+            be parsed and the object loaded from the root element.
         """
-        if isinstance(xml_el, str):
+        if isinstance(xml_src, str):
             # It's a path, load from it.
-            xml_el = etree.parse(xml_el).getroot()
+            xml_src = etree.parse(xml_src).getroot()
 
         obj = cls()
 
         # load all the attributes and sub-objects
         for aname, meta in cls.acorn_content.items():
-            meta.fromxml(aname, obj, xml_el)
+            meta.fromxml(aname, obj, xml_src)
 
         cls._apply_hooks('fromxml', obj)
 
@@ -218,8 +281,17 @@ class Acorn(object):
 
     def toxml(self, xml_dest=None, write_kwargs={'pretty_print': True}):
         """
-        Convenience wrapper, which handles the case where the passed-in element
-        is actually a string path.
+        Convert the object to an XML element.
+
+        **xml_dest**
+            Either :class:`xml.etree.ElementTree.Element` or a path of type
+            :class:`str`. If the first, the object, when converted to XML,
+            will be placed as a sub-element of **xml_dest**. If the second,
+            the XML will be written to the path.
+
+        **write_kwargs**
+            kwargs to pass to :func:`etree.ElementTree.write` if xml_dest
+            is a path
         """
         if isinstance(xml_dest, str):
             # It's a path, write the tree out.
@@ -238,8 +310,7 @@ class Acorn(object):
 
     def _toxml(self, xml_dest=None):
         """
-        Convert the object to an XML element and place it under the given
-        XML element.
+        Does the actual work.
         """
         # Create the element
         el = etree.Element(self.xml_tag)
