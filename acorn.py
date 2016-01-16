@@ -1,6 +1,5 @@
 """
-This defines some very flexible functionality to create Python classes from XML
-and create XML from Python classes.
+This defines a very flexible serialization between Python objects and XML.
 """
 
 
@@ -27,20 +26,18 @@ class _AcornMetaClass(type):
 
 class Acorn(object):
     """
-    This defines some very flexible functionality to create Python classes from
-    XML and create XML from Python classes.
+    This defines a very flexible serialization between Python objects and XML.
     """
 
     xml_tag = None
     '''
-    XML tag associated with this class. For example, if you created a class
-    called 'Person' to parse <person/> elements from XML, you would set xml_tag
+    Tag to use for XML element created from the object.
     to 'person'.
     '''
 
     acorn_content = {}
     '''
-    This dictionary defines what class attributes Acorn will load from/save \
+    This dictionary defines what class attributes Acorn will load from/save
     to XML.
 
     acorn_content should be defined in the following way:
@@ -63,7 +60,7 @@ class Acorn(object):
 
     def __init__(self, **kwargs):
         """
-        It is optional to call this when instantiating inherting classes.
+        It is optional to call this when instantiating inheriting classes.
         If called, it will create all attributes with default values (and set
         them to the defaults) and create any attributes of 'children' type 
         and set them to empty lists.  It will create any attributes of 'child'
@@ -169,7 +166,7 @@ class Acorn(object):
             then *event_cls* would be :class:`~acorn.Acorn`.
 
         - *obj* - the object associated with the hook. For 'fromxml', this \
-            is the Python object being created. For 'toxml', this is the 
+            is the Python object being created. For 'toxml', this is the \
             :class:`xml.etree.ElementTree.Element` being created.
 
         .. note::
@@ -225,7 +222,7 @@ class Acorn(object):
         """
         Processes the content dict into a more usable form for Acorn's
         internal code.  This should be used to define
-        :attr:`~acorn.Acorn.acorn_content` unless you know what you are doing.
+        :attr:`~acorn.Acorn.acorn_content`.
         """
         parsed = {}
 

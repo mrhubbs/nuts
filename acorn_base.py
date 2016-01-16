@@ -1,4 +1,15 @@
 
+"""
+The various source objects provide facilities to load/save data to/from various
+parts of an XML data structure (e.g. from an element's attribute, text, or
+child element, etc.).  They are created behind-the-scenes when
+:class:`~acorn.Acorn` parses content definitions and do the grunt work for the
+:func:`~acorn.Acorn.fromxml` and :func:`~acorn.Acorn.toxml` operations.
+
+It is possible to create custom sources.
+"""
+
+
 from __init__ import etree, NutException
 
 
@@ -188,7 +199,7 @@ class AcornChildrenSource(BaseAcornSource):
         class Person(Acorn):
             xml_tag = 'person'
             acorn_content = Acorn.parse_content({
-                . . .
+                ...
                 'weapons': {'type': Weapon, 'src': 'children'}
             })
 

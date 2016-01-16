@@ -1,6 +1,6 @@
 # nuts
 
-Nuts is a collection of Python classes for loading and saving data.  The specific goal is to easily create Python objects from file data and vice-versa.  Thus nuts is essentially a serialization/deserialization tool, one which allows a great deal of flexibility.  Currently, nuts is comprised of Acorn.
+Nuts is a collection of Python classes for very flexible serialization.  Currently, nuts is comprised of Acorn, which does XML serialization.
 
 ## acorn
 
@@ -86,6 +86,8 @@ Note that, by specifying the type of each attribute, Acorn can perform automatic
 
 <a name="sources"></a>
 ### sources
+
+This is an introduction by example.  More documentation is <a href='docs/build/index.html#module-acorn_base>here</a>.
 
 Built-in values for the 'src' entry are:
 

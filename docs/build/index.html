@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Nuts Documentation &mdash; nuts 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="nuts 0.1 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">nuts 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="nuts-documentation">
+<h1>Nuts Documentation<a class="headerlink" href="#nuts-documentation" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="acorn">
+<h1>Acorn<a class="headerlink" href="#acorn" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="acorn.Acorn">
+<em class="property">class </em><tt class="descclassname">acorn.</tt><tt class="descname">Acorn</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#acorn.Acorn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>This defines a very flexible serialization between Python objects and XML.</p>
+<dl class="attribute">
+<dt id="acorn.Acorn.xml_tag">
+<tt class="descname">xml_tag</tt><em class="property"> = None</em><a class="headerlink" href="#acorn.Acorn.xml_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag to use for XML element created from the object.
+to &#8216;person&#8217;.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="acorn.Acorn.acorn_content">
+<tt class="descname">acorn_content</tt><em class="property"> = {}</em><a class="headerlink" href="#acorn.Acorn.acorn_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>This dictionary defines what class attributes Acorn will load from/save
+to XML.</p>
+<p>acorn_content should be defined in the following way:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Acorn</span><span class="p">):</span>
+    <span class="n">acorn_content</span> <span class="o">=</span> <span class="n">Acorn</span><span class="o">.</span><span class="n">parse_content</span><span class="p">({</span>
+        <span class="s">&#39;attrib_name&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">},</span>
+        <span class="s">&#39;other_attrib_name&#39;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+        <span class="o">...</span>
+    <span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="acorn.Acorn.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#acorn.Acorn.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>It is optional to call this when instantiating inheriting classes.
+If called, it will create all attributes with default values (and set
+them to the defaults) and create any attributes of &#8216;children&#8217; type 
+and set them to empty lists.  It will create any attributes of &#8216;child&#8217;
+type.</p>
+<p>It will also set any attributes to any values specified in kwargs.
+These values override the defaults.  For any attributes with
+&#8216;options&#8217; specified, no checking is done to ensure the values in
+kwargs are permissible.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="acorn.Acorn.register_src">
+<em class="property">classmethod </em><tt class="descname">register_src</tt><big>(</big><em>src_name</em>, <em>src</em><big>)</big><a class="headerlink" href="#acorn.Acorn.register_src" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers the source <strong>src</strong> under the name <strong>src_name</strong>.</p>
+<dl class="docutils">
+<dt><strong>src_name</strong></dt>
+<dd><a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></a>, name of source</dd>
+<dt><strong>src</strong></dt>
+<dd>Must inherit from <a class="reference internal" href="#acorn_base.BaseAcornSource" title="acorn_base.BaseAcornSource"><tt class="xref py py-class docutils literal"><span class="pre">BaseAcornSource</span></tt></a>.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If there is already a source by <strong>src_name</strong>, it will be replaced             by <strong>src</strong>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This acts &#8216;globally&#8217;. That is, the source will be registered to
+<a class="reference internal" href="#acorn.Acorn" title="acorn.Acorn"><tt class="xref py py-class docutils literal"><span class="pre">Acorn</span></tt></a> and all classes that inherit from it.</p>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="acorn.Acorn.unregister_src">
+<em class="property">classmethod </em><tt class="descname">unregister_src</tt><big>(</big><em>src_name</em><big>)</big><a class="headerlink" href="#acorn.Acorn.unregister_src" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregisters the source associted with the name <strong>src_name</strong>.</p>
+<dl class="docutils">
+<dt><strong>src_name</strong></dt>
+<dd><a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></a>, name of source</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This fails gracefully (without exceptions) in the event there is             no such source.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This acts &#8216;globally&#8217;. That is, the source will be unregistered from
+<a class="reference internal" href="#acorn.Acorn" title="acorn.Acorn"><tt class="xref py py-class docutils literal"><span class="pre">Acorn</span></tt></a> and all classes that inherit from it.</p>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="acorn.Acorn.add_hook">
+<em class="property">classmethod </em><tt class="descname">add_hook</tt><big>(</big><em>event</em>, <em>hook</em><big>)</big><a class="headerlink" href="#acorn.Acorn.add_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <strong>hook</strong> to the event named <strong>event</strong>.</p>
+<dl class="docutils">
+<dt><strong>event</strong></dt>
+<dd><a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></a>, name of event. Current options are &#8216;fromxml&#8217;                 and &#8216;toxml&#8217;.</dd>
+<dt><strong>hook</strong></dt>
+<dd><p class="first">A callable of the form:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">hook</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">event_cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<ul>
+<li><p class="first"><em>event</em> - name of event</p>
+</li>
+<li><p class="first"><em>event_cls</em> - the class of the object generating the event. If the             hook call resulted from doing:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">Acorn</span><span class="o">.</span><span class="n">fromxml</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>then <em>event_cls</em> would be <a class="reference internal" href="#acorn.Acorn" title="acorn.Acorn"><tt class="xref py py-class docutils literal"><span class="pre">Acorn</span></tt></a>.</p>
+</div></blockquote>
+</li>
+<li><p class="first"><em>obj</em> - the object associated with the hook. For &#8216;fromxml&#8217;, this             is the Python object being created. For &#8216;toxml&#8217;, this is the             <a class="reference external" href="http://docs.python.org/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.Element</span></tt></a> being created.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If this hook is already assigned to <strong>event</strong>, it will not be             added again.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Unlike <a class="reference internal" href="#acorn.Acorn.register_src" title="acorn.Acorn.register_src"><tt class="xref py py-func docutils literal"><span class="pre">register_src()</span></tt></a>, this acts &#8216;locally&#8217;.
+That is, it only acts on the class it is called with, not all
+classes inheriting from <a class="reference internal" href="#acorn.Acorn" title="acorn.Acorn"><tt class="xref py py-class docutils literal"><span class="pre">Acorn</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="acorn.Acorn.remove_hook">
+<em class="property">classmethod </em><tt class="descname">remove_hook</tt><big>(</big><em>event</em>, <em>hook</em><big>)</big><a class="headerlink" href="#acorn.Acorn.remove_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove <strong>hook</strong> from the event named <strong>event</strong>.</p>
+<dl class="docutils">
+<dt><strong>event</strong></dt>
+<dd><a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></a>, name of event. Current options are &#8216;fromxml&#8217;                 and &#8216;toxml&#8217;.</dd>
+<dt><strong>hook</strong></dt>
+<dd>The hook callable.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This fails gracefully (without exceptions) in the event there is             no such hook.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Unlike <a class="reference internal" href="#acorn.Acorn.register_src" title="acorn.Acorn.register_src"><tt class="xref py py-func docutils literal"><span class="pre">register_src()</span></tt></a>, this acts &#8216;locally&#8217;.
+That is, it only acts on the class it is called with, not all
+classes inheriting from <a class="reference internal" href="#acorn.Acorn" title="acorn.Acorn"><tt class="xref py py-class docutils literal"><span class="pre">Acorn</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="acorn.Acorn.parse_content">
+<em class="property">classmethod </em><tt class="descname">parse_content</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#acorn.Acorn.parse_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the content dict into a more usable form for Acorn&#8217;s
+internal code.  This should be used to define
+<a class="reference internal" href="#acorn.Acorn.acorn_content" title="acorn.Acorn.acorn_content"><tt class="xref py py-attr docutils literal"><span class="pre">acorn_content</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="acorn.Acorn.fromxml">
+<em class="property">classmethod </em><tt class="descname">fromxml</tt><big>(</big><em>xml_src</em><big>)</big><a class="headerlink" href="#acorn.Acorn.fromxml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and return a new object loaded from <strong>xml_src</strong>.</p>
+<dl class="docutils">
+<dt><strong>xml_src</strong></dt>
+<dd>Either <a class="reference external" href="http://docs.python.org/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.Element</span></tt></a> or a path of type
+<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></a>. If the first, the object will be loaded from the
+element. If the second, the XML file at the path <strong>xml_src</strong> will
+be parsed and the object loaded from the root element.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="acorn.Acorn.toxml">
+<tt class="descname">toxml</tt><big>(</big><em>xml_dest=None</em>, <em>write_kwargs={'pretty_print': True}</em><big>)</big><a class="headerlink" href="#acorn.Acorn.toxml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the object to an XML element.</p>
+<dl class="docutils">
+<dt><strong>xml_dest</strong></dt>
+<dd>Either <a class="reference external" href="http://docs.python.org/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.Element</span></tt></a> or a path of type
+<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></a>. If the first, the object, when converted to XML,
+will be placed as a sub-element of <strong>xml_dest</strong>. If the second,
+the XML will be written to the path.</dd>
+<dt><strong>write_kwargs</strong></dt>
+<dd>kwargs to pass to <tt class="xref py py-func docutils literal"><span class="pre">etree.ElementTree.write()</span></tt> if xml_dest
+is a path</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-acorn_base">
+<span id="acorn-s-sources"></span><h1>Acorn&#8217;s Sources<a class="headerlink" href="#module-acorn_base" title="Permalink to this headline">¶</a></h1>
+<p>The various source objects provide facilities to load/save data to/from various
+parts of an XML data structure (e.g. from an element&#8217;s attribute, text, or
+child element, etc.).  They are created behind-the-scenes when
+<a class="reference internal" href="#acorn.Acorn" title="acorn.Acorn"><tt class="xref py py-class docutils literal"><span class="pre">Acorn</span></tt></a> parses content definitions and do the grunt work for the
+<a class="reference internal" href="#acorn.Acorn.fromxml" title="acorn.Acorn.fromxml"><tt class="xref py py-func docutils literal"><span class="pre">fromxml()</span></tt></a> and <a class="reference internal" href="#acorn.Acorn.toxml" title="acorn.Acorn.toxml"><tt class="xref py py-func docutils literal"><span class="pre">toxml()</span></tt></a> operations.</p>
+<p>It is possible to create custom sources.</p>
+<dl class="class">
+<dt id="acorn_base.BaseAcornSource">
+<em class="property">class </em><tt class="descclassname">acorn_base.</tt><tt class="descname">BaseAcornSource</tt><big>(</big><em>meta</em><big>)</big><a class="headerlink" href="#acorn_base.BaseAcornSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base class for every source.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="acorn_base.AcornTextSource">
+<em class="property">class </em><tt class="descclassname">acorn_base.</tt><tt class="descname">AcornTextSource</tt><big>(</big><em>meta</em><big>)</big><a class="headerlink" href="#acorn_base.AcornTextSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Source to get data from element&#8217;s text.</p>
+<dl class="method">
+<dt id="acorn_base.AcornTextSource.fromxml">
+<tt class="descname">fromxml</tt><big>(</big><em>name</em>, <em>obj</em>, <em>xml_el</em><big>)</big><a class="headerlink" href="#acorn_base.AcornTextSource.fromxml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an object&#8217;s attribute from the XML element&#8217;s attribute or child&#8217;s texts.</p>
+<p>This applies options and default.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="acorn_base.AcornAttrSource">
+<em class="property">class </em><tt class="descclassname">acorn_base.</tt><tt class="descname">AcornAttrSource</tt><big>(</big><em>meta</em><big>)</big><a class="headerlink" href="#acorn_base.AcornAttrSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Source to get data from element&#8217;s attribute.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="acorn_base.AcornSubTextSource">
+<em class="property">class </em><tt class="descclassname">acorn_base.</tt><tt class="descname">AcornSubTextSource</tt><big>(</big><em>meta</em><big>)</big><a class="headerlink" href="#acorn_base.AcornSubTextSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Source to get data from element&#8217;s child&#8217;s text.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="acorn_base.AcornChildSource">
+<em class="property">class </em><tt class="descclassname">acorn_base.</tt><tt class="descname">AcornChildSource</tt><big>(</big><em>meta</em><big>)</big><a class="headerlink" href="#acorn_base.AcornChildSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Source to load object from element&#8217;s child.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="acorn_base.AcornChildrenSource">
+<em class="property">class </em><tt class="descclassname">acorn_base.</tt><tt class="descname">AcornChildrenSource</tt><big>(</big><em>meta</em><big>)</big><a class="headerlink" href="#acorn_base.AcornChildrenSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a series of objects from the direct children (children&#8217;s children
+are ignored).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Weapon</span><span class="p">(</span><span class="n">Acorn</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Acorn</span><span class="p">):</span>
+    <span class="n">xml_tag</span> <span class="o">=</span> <span class="s">&#39;person&#39;</span>
+    <span class="n">acorn_content</span> <span class="o">=</span> <span class="n">Acorn</span><span class="o">.</span><span class="n">parse_content</span><span class="p">({</span>
+        <span class="o">...</span>
+        <span class="s">&#39;weapons&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="n">Weapon</span><span class="p">,</span> <span class="s">&#39;src&#39;</span><span class="p">:</span> <span class="s">&#39;children&#39;</span><span class="p">}</span>
+    <span class="p">})</span>
+
+<span class="n">person</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">fromxml</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">weapons</span><span class="p">)</span>
+
+<span class="p">[</span><span class="o">&lt;</span><span class="n">Weapon</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7fab52</span><span class="o">......&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">Weapon</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7fab52</span><span class="o">......&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">Weapon</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7fab52</span><span class="o">......&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>TODO: write about recursion trick for children/child</p>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Nuts Documentation</a></li>
+<li><a class="reference internal" href="#acorn">Acorn</a></li>
+<li><a class="reference internal" href="#module-acorn_base">Acorn&#8217;s Sources</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">nuts 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, mrhubbs.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
