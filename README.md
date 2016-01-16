@@ -87,7 +87,7 @@ Note that, by specifying the type of each attribute, Acorn can perform automatic
 <a name="sources"></a>
 ### sources
 
-This is an introduction by example.  More documentation is <a href='docs/build/index.html#module-acorn_base>here</a>.
+This is an introduction by example.  More documentation is <a href='docs/build/index.html#module-acorn_base'>here</a>.
 
 Built-in values for the 'src' entry are:
 
