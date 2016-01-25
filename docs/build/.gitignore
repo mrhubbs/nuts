@@ -1,8 +1,0 @@
-# ignore everything but HTML and JS files (and this .gitignore)
-*
-
-!.gitignore
-
-!*.html
-
-!*.js
